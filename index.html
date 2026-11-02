@@ -279,6 +279,125 @@
       }
     }
 
+    
+    /* --- Songs HUD --- */
+    #songs-hud {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      width: 290px;
+      background: rgba(10, 10, 20, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 12px 14px;
+      z-index: 25;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s ease;
+    }
+
+    #songs-hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: rgba(255, 255, 255, 0.9);
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 8px;
+    }
+
+    #songs-count-badge {
+      font-size: 9px;
+      background: rgba(139, 92, 246, 0.25);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    #songs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 240px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.65);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .song-item:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+    }
+
+    .song-item.active {
+      background: rgba(139, 92, 246, 0.3);
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.35);
+    }
+
+    .song-item .song-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .song-item .song-tag {
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+    }
+
+    .song-item.active .song-tag {
+      color: #c4b5fd;
+    }
+
+    #start-btn {
+      margin-top: 18px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(239, 68, 68, 0.5));
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+    }
+
+    #start-btn:hover {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(239, 68, 68, 0.8));
+      box-shadow: 0 0 50px rgba(124, 58, 237, 0.7);
+      transform: scale(1.05);
+    }
+
     /* --- Error Screen --- */
     #error-screen {
       position: fixed;
@@ -319,7 +438,7 @@
 
   <!-- Atmosphere Layers -->
   <div id="fog-layer"></div>
-  <div id="sky-overlay" id="sky-stars"></div>
+  <div id="sky-overlay"></div>
   <div id="moon-overlay"></div>
 
   <!-- City Overlay (Spider-Man Mode) -->
@@ -334,20 +453,29 @@
   <canvas id="overlay-canvas"></canvas>
 
   <!-- Webcam Preview -->
-  <video id="webcam-preview" autoplay playsinline></video>
+  <video id="webcam-preview" autoplay playsinline muted></video>
   <canvas id="webcam-canvas"></canvas>
-
-  <!-- Hidden Video for MediaPipe -->
-  <video id="input-video" autoplay playsinline></video>
 
   <!-- Track Name Display -->
   <div id="track-name"></div>
 
+  <!-- Songs HUD / Active Playlist -->
+  <div id="songs-hud">
+    <div id="songs-hud-header">
+      <span>⚔️ CASTLE TRACKS</span>
+      <span id="songs-count-badge">10 TRACKS</span>
+    </div>
+    <div id="songs-list">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
   <!-- Start Screen -->
   <div id="start-screen">
     <h1>CASTLE PHONK</h1>
-    <p>move your hand to begin</p>
-    <p class="click-hint">[ click anywhere ]</p>
+    <p class="subtitle" style="font-size: 15px; color: rgba(255,255,255,0.7); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 12px;">Gothic Gestural Visualizer</p>
+    <button id="start-btn">ENTER THE CASTLE</button>
+    <p class="click-hint" style="margin-top: 16px;">[ Click anywhere to enable camera & audio ]</p>
   </div>
 
   <!-- Error Screen -->
@@ -358,9 +486,10 @@
   <!-- ============================================
        CDN Dependencies
        ============================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js" crossorigin="anonymous"></script>
+  <!-- Local Offline-Ready Dependencies -->
+  <script src="hands.js"></script>
+  <script src="camera_utils.js"></script>
+  <script src="Tone.js"></script>
 
   <script>
     // ============================================
@@ -377,7 +506,6 @@
     const webcamPreview = document.getElementById('webcam-preview');
     const webcamCanvas = document.getElementById('webcam-canvas');
     const wCtx = webcamCanvas.getContext('2d');
-    const inputVideo = document.getElementById('input-video');
     const trackNameEl = document.getElementById('track-name');
     const startScreen = document.getElementById('start-screen');
     const errorScreen = document.getElementById('error-screen');
@@ -425,7 +553,7 @@
       wc.style.width = finalW + 'px';
       wc.style.height = finalH + 'px';
       wc.style.pointerEvents = 'none';
-      wc.style.zIndex = '1';
+      wc.style.zIndex = '5';
     }
 
     castleBg.addEventListener('load', resizeWindowsContainer);
@@ -460,21 +588,22 @@
 
     // Track energy profiles (from TRD.md)
     const trackProfiles = [
-      { id: 1, filename: 'track01.mp3', name: 'Track 01', tempo: 0.2, aggression: 0.3, darkness: 0.8, chaos: 0.2 },
-      { id: 2, filename: 'track02.mp3', name: 'Track 02', tempo: 0.9, aggression: 0.9, darkness: 0.7, chaos: 0.8 },
-      { id: 3, filename: 'track03.mp3', name: 'Track 03', tempo: 0.5, aggression: 0.5, darkness: 0.6, chaos: 0.4 },
-      { id: 4, filename: 'track04.mp3', name: 'Track 04', tempo: 0.1, aggression: 0.2, darkness: 0.9, chaos: 0.1 },
-      { id: 5, filename: 'track05.mp3', name: 'Track 05', tempo: 0.7, aggression: 0.6, darkness: 0.5, chaos: 0.6 },
-      { id: 6, filename: 'track06.mp3', name: 'Track 06', tempo: 0.4, aggression: 0.7, darkness: 0.8, chaos: 0.5 },
-      { id: 7, filename: 'track07.mp3', name: 'Track 07', tempo: 0.8, aggression: 0.8, darkness: 0.4, chaos: 0.7 },
-      { id: 8, filename: 'track08.mp3', name: 'Track 08', tempo: 0.3, aggression: 0.4, darkness: 0.7, chaos: 0.3 },
-      { id: 9, filename: 'track09.mp3', name: 'Track 09', tempo: 0.6, aggression: 0.5, darkness: 0.6, chaos: 0.9 },
-      { id: 10, filename: 'track10.mp3', name: 'Track 10', tempo: 0.5, aggression: 0.6, darkness: 0.9, chaos: 0.5 },
+      { id: 1, filename: 'track01.mp3', name: 'Track 01 — Dark Ambience', mood: 'Slow Dark', tempo: 0.2, aggression: 0.3, darkness: 0.8, chaos: 0.2 },
+      { id: 2, filename: 'track02.mp3', name: 'Track 02 — Montagem Supersonic', mood: 'Hard Phonk', tempo: 0.9, aggression: 0.9, darkness: 0.7, chaos: 0.8 },
+      { id: 3, filename: 'track03.mp3', name: 'Track 03 — Montagem Bravo', mood: 'Aggressive', tempo: 0.5, aggression: 0.5, darkness: 0.6, chaos: 0.4 },
+      { id: 4, filename: 'track04.mp3', name: 'Track 04 — Midnight Slump', mood: 'Deep Slow', tempo: 0.1, aggression: 0.2, darkness: 0.9, chaos: 0.1 },
+      { id: 5, filename: 'track05.mp3', name: 'Track 05 — Hypnotic Phonk', mood: 'Hypnotic', tempo: 0.7, aggression: 0.6, darkness: 0.5, chaos: 0.6 },
+      { id: 6, filename: 'track06.mp3', name: 'Track 06 — Cala Boca', mood: 'Brazilian', tempo: 0.4, aggression: 0.7, darkness: 0.8, chaos: 0.5 },
+      { id: 7, filename: 'track07.mp3', name: 'Track 07 — Neon Velocity', mood: 'Fast Beat', tempo: 0.8, aggression: 0.8, darkness: 0.4, chaos: 0.7 },
+      { id: 8, filename: 'track08.mp3', name: 'Track 08 — Shadow Realm', mood: 'Gothic Pace', tempo: 0.3, aggression: 0.4, darkness: 0.7, chaos: 0.3 },
+      { id: 9, filename: 'track09.mp3', name: 'Track 09 — Cyber Mayhem', mood: 'Chaotic', tempo: 0.6, aggression: 0.5, darkness: 0.6, chaos: 0.9 },
+      { id: 10, filename: 'track10.mp3', name: 'Track 10 — Gothic Drop', mood: 'Bass Heavy', tempo: 0.5, aggression: 0.6, darkness: 0.9, chaos: 0.5 },
     ];
 
     // Audio state
     let players = {};
     let spiderPlayer = null;
+    let masterVol = null;
     let analyser = null;
     let dataArray = null;
     let currentTrackId = null;
@@ -484,10 +613,13 @@
     let isCrossfading = false;
 
     async function initAudio() {
+      if (typeof Tone === 'undefined') {
+        throw new Error('Tone.js library failed to load — check connection');
+      }
       await Tone.start();
 
-      // Create master volume node
-      const masterVol = new Tone.Volume(volumeToDb(masterVolume)).toDestination();
+      Tone.Destination.volume.value = 0;
+      masterVol = new Tone.Volume(volumeToDb(masterVolume)).toDestination();
 
       // Load all track players
       trackProfiles.forEach(track => {
@@ -506,17 +638,130 @@
         volume: -60,
       }).connect(masterVol);
 
-      // Wait for all buffers to load
-      await Tone.loaded();
-
       // Frequency analyser
-      analyser = Tone.context.createAnalyser();
-      analyser.fftSize = 256;
-      dataArray = new Uint8Array(analyser.frequencyBinCount);
-      Tone.Destination.connect(analyser);
+      try {
+        const rawCtx = Tone.context.rawContext || Tone.context;
+        analyser = rawCtx.createAnalyser ? rawCtx.createAnalyser() : Tone.context.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        masterVol.connect(analyser);
+      } catch (err) {
+        console.warn('Analyser setup fallback:', err);
+      }
 
-      audioReady = true;
-      console.log('Audio system initialized. All tracks loaded.');
+      // Asynchronous buffer load notification
+      Tone.loaded().then(() => {
+        audioReady = true;
+        console.log('Audio system initialized. All tracks loaded.');
+      }).catch(err => {
+        console.warn('Tone.loaded notice:', err);
+        audioReady = true;
+      });
+    }
+
+    
+    // --- Songs HUD UI ---
+    function renderTrackHUD() {
+      const container = document.getElementById('songs-list');
+      if (!container) return;
+      container.innerHTML = '';
+      trackProfiles.forEach(track => {
+        const item = document.createElement('div');
+        item.className = 'song-item' + (currentTrackId === track.id ? ' active' : '');
+        item.id = `song-item-${track.id}`;
+        item.innerHTML = `
+          <div class="song-title">
+            <span class="song-indicator">${currentTrackId === track.id ? '▶' : '•'}</span>
+            <span>${track.name}</span>
+          </div>
+          <span class="song-tag">${track.mood}</span>
+        `;
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          startExperience().then(() => {
+            if (currentTrackId !== track.id) {
+              if (isPlaying) {
+                crossfadeTo(track.id);
+              } else {
+                startTrack(track.id);
+                startVisualLoop();
+              }
+            }
+          });
+        });
+        container.appendChild(item);
+      });
+    }
+
+    function updateTrackHUD() {
+      document.querySelectorAll('.song-item').forEach(el => {
+        el.classList.remove('active');
+        const ind = el.querySelector('.song-indicator');
+        if (ind) ind.textContent = '•';
+      });
+      if (currentTrackId) {
+        const activeEl = document.getElementById(`song-item-${currentTrackId}`);
+        if (activeEl) {
+          activeEl.classList.add('active');
+          const ind = activeEl.querySelector('.song-indicator');
+          if (ind) ind.textContent = '▶';
+        }
+      }
+    }
+
+    // Preload audio immediately on page load
+    function preloadAudio() {
+      if (typeof Tone === 'undefined') return;
+
+      try {
+        Tone.Destination.volume.value = 0;
+        if (!masterVol) {
+          masterVol = new Tone.Volume(volumeToDb(masterVolume)).toDestination();
+        }
+
+        if (!analyser) {
+          try {
+            const rawCtx = Tone.context.rawContext || Tone.context;
+            analyser = rawCtx.createAnalyser ? rawCtx.createAnalyser() : Tone.context.createAnalyser();
+            analyser.fftSize = 256;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            masterVol.connect(analyser);
+          } catch (err) {
+            console.warn('Analyser setup fallback:', err);
+          }
+        }
+
+        trackProfiles.forEach(track => {
+          if (!players[track.id]) {
+            const player = new Tone.Player({
+              url: `audio/${track.filename}`,
+              loop: true,
+              volume: -60,
+            }).connect(masterVol);
+            players[track.id] = player;
+          }
+        });
+
+        if (!spiderPlayer) {
+          spiderPlayer = new Tone.Player({
+            url: 'audio/spiderman.mp3',
+            loop: true,
+            volume: -60,
+          }).connect(masterVol);
+        }
+
+        Tone.loaded().then(() => {
+          audioReady = true;
+          console.log('All audio tracks preloaded and ready!');
+          const badge = document.getElementById('songs-count-badge');
+          if (badge) badge.textContent = '10 READY';
+        }).catch(err => {
+          console.warn('Tone.loaded notice:', err);
+          audioReady = true;
+        });
+      } catch (err) {
+        console.error('Preload error:', err);
+      }
     }
 
     function volumeToDb(vol) {
@@ -538,6 +783,31 @@
       return arr.reduce((a, b) => a + b, 0) / arr.length;
     }
 
+    // Timers to safely stop players without zombie timeouts
+    const stopTimers = {};
+
+    function stopPlayer(player, id, fadeDuration = 1.5) {
+      if (!player) return;
+      if (stopTimers[id]) {
+        clearTimeout(stopTimers[id]);
+        delete stopTimers[id];
+      }
+      if (player.state === 'started') {
+        player.volume.rampTo(-60, fadeDuration);
+        stopTimers[id] = setTimeout(() => {
+          try { player.stop(); } catch (e) { }
+          delete stopTimers[id];
+        }, (fadeDuration + 0.1) * 1000);
+      }
+    }
+
+    function cancelStop(id) {
+      if (stopTimers[id]) {
+        clearTimeout(stopTimers[id]);
+        delete stopTimers[id];
+      }
+    }
+
     // Crossfade between tracks over 2s
     function crossfadeTo(newTrackId) {
       if (currentTrackId === newTrackId || isCrossfading) return;
@@ -547,32 +817,33 @@
       const fadeInPlayer = players[newTrackId];
 
       if (!fadeInPlayer || !fadeInPlayer.loaded) {
-        console.error(`Track ${newTrackId} not loaded, skipping`);
+        console.warn(`Track ${newTrackId} not yet loaded, skipping crossfade`);
         isCrossfading = false;
         return;
       }
 
-      // Fade out old
-      if (fadeOutPlayer && fadeOutPlayer.state === 'started') {
-        fadeOutPlayer.volume.rampTo(-60, 2);
-        setTimeout(() => {
-          try { fadeOutPlayer.stop(); } catch (e) { }
-        }, 2100);
+      cancelStop(newTrackId);
+      if (currentTrackId && fadeOutPlayer) {
+        stopPlayer(fadeOutPlayer, currentTrackId, 2.0);
       }
 
-      // Fade in new
-      fadeInPlayer.volume.value = -60;
-      try { fadeInPlayer.start(); } catch (e) { }
-      fadeInPlayer.volume.rampTo(0, 2);
+      try {
+        if (fadeInPlayer.state !== 'started') {
+          fadeInPlayer.start();
+        }
+      } catch (e) { }
 
-      const oldId = currentTrackId;
+      fadeInPlayer.volume.cancelScheduledValues(Tone.now());
+      fadeInPlayer.volume.setValueAtTime(-24, Tone.now());
+      fadeInPlayer.volume.rampTo(0, 2.0);
+
       currentTrackId = newTrackId;
 
-      // Update track name
       const track = trackProfiles.find(t => t.id === newTrackId);
       if (track) {
-        trackNameEl.textContent = track.name;
+        trackNameEl.textContent = '⚡ NOW PLAYING: ' + track.name;
         trackNameEl.classList.add('visible');
+        updateTrackHUD();
       }
 
       setTimeout(() => { isCrossfading = false; }, 2100);
@@ -581,36 +852,49 @@
     // Start a track from silence
     function startTrack(trackId) {
       const player = players[trackId];
-      if (!player || !player.loaded) return;
+      if (!player || !player.loaded) {
+        console.warn(`Track ${trackId} not yet loaded`);
+        return;
+      }
 
-      player.volume.value = -60;
-      try { player.start(); } catch (e) { }
-      player.volume.rampTo(0, 1.5);
+      cancelStop(trackId);
+
+      if (Tone.context.state !== 'running') {
+        try { Tone.context.resume(); } catch (e) { }
+      }
+
+      try {
+        if (player.state !== 'started') {
+          player.start();
+        }
+      } catch (e) { }
+
+      player.volume.cancelScheduledValues(Tone.now());
+      player.volume.setValueAtTime(-24, Tone.now());
+      player.volume.rampTo(0, 0.6);
       currentTrackId = trackId;
       isPlaying = true;
 
       const track = trackProfiles.find(t => t.id === trackId);
       if (track) {
-        trackNameEl.textContent = track.name;
+        trackNameEl.textContent = '⚡ NOW PLAYING: ' + track.name;
         trackNameEl.classList.add('visible');
+        updateTrackHUD();
       }
     }
 
     // Stop all music
     function stopAllMusic() {
-      Object.values(players).forEach(p => {
-        if (p.state === 'started') {
-          p.volume.rampTo(-60, 1.5);
-          setTimeout(() => { try { p.stop(); } catch (e) { } }, 1600);
-        }
+      Object.entries(players).forEach(([id, p]) => {
+        stopPlayer(p, id, 1.5);
       });
-      if (spiderPlayer && spiderPlayer.state === 'started') {
-        spiderPlayer.volume.rampTo(-60, 1.5);
-        setTimeout(() => { try { spiderPlayer.stop(); } catch (e) { } }, 1600);
+      if (spiderPlayer) {
+        stopPlayer(spiderPlayer, 'spider', 1.5);
       }
       currentTrackId = null;
       isPlaying = false;
       trackNameEl.classList.remove('visible');
+      updateTrackHUD();
       stopVisualLoop();
     }
 
@@ -626,11 +910,18 @@
 
 
     // ============================================
-    // STEP 5 — Specific Gesture Track Mapping
+    // ============================================
+    // STEP 5 — Movement Fingerprint Engine & Math
     // ============================================
 
     function clamp(v, min, max) {
       return Math.max(min, Math.min(max, v));
+    }
+
+    function dist(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
     }
 
     const HAND_CONNECTIONS = [
@@ -639,9 +930,11 @@
       [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]
     ];
 
-    function drawHandSkeleton(landmarks) {
+    function drawHandSkeleton(landmarks, debugInfo) {
       wCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height);
-      wCtx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
+
+      // Draw skeleton lines
+      wCtx.strokeStyle = 'rgba(0, 255, 255, 0.7)';
       wCtx.lineWidth = 2;
       for (let i = 0; i < HAND_CONNECTIONS.length; i++) {
         const [a, b] = HAND_CONNECTIONS[i];
@@ -650,68 +943,119 @@
         wCtx.lineTo(landmarks[b].x * webcamCanvas.width, landmarks[b].y * webcamCanvas.height);
         wCtx.stroke();
       }
-      wCtx.fillStyle = 'rgba(255, 0, 255, 0.6)';
+
+      // Draw joints
+      wCtx.fillStyle = 'rgba(255, 0, 255, 0.8)';
       for (let i = 0; i < landmarks.length; i++) {
         wCtx.beginPath();
-        wCtx.arc(landmarks[i].x * webcamCanvas.width, landmarks[i].y * webcamCanvas.height, 3, 0, 2 * Math.PI);
+        wCtx.arc(landmarks[i].x * webcamCanvas.width, landmarks[i].y * webcamCanvas.height, 2.5, 0, 2 * Math.PI);
         wCtx.fill();
+      }
+
+      // Draw debug feedback text (un-mirror so it reads correctly)
+      if (debugInfo) {
+        wCtx.save();
+        wCtx.translate(webcamCanvas.width, 0);
+        wCtx.scale(-1, 1);
+        wCtx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        wCtx.fillRect(4, 4, webcamCanvas.width - 8, 20);
+        wCtx.fillStyle = '#00FFCC';
+        wCtx.font = '10px monospace';
+        wCtx.textAlign = 'left';
+        wCtx.textBaseline = 'middle';
+        wCtx.fillText(debugInfo, 8, 14);
+        wCtx.restore();
       }
     }
 
-    function classifyPose(landmarks) {
-      // Extended checks based on tips relative to PIP joints
-      const th = dist(landmarks[4], landmarks[0]) > 0.15; // Thumb extended from wrist
-      const ind = landmarks[8].y < landmarks[5].y - 0.02;
-      const mid = landmarks[12].y < landmarks[9].y - 0.02;
-      const rin = landmarks[16].y < landmarks[13].y - 0.02;
-      const pin = landmarks[20].y < landmarks[17].y - 0.02;
+    // --- Movement Fingerprint Buffer & Computation ---
+    const positionBuffer = []; // { x, y, t }
 
-      // Closed checks
-      const indClosed = landmarks[8].y > landmarks[6].y;
-      const midClosed = landmarks[12].y > landmarks[10].y;
-      const rinClosed = landmarks[16].y > landmarks[14].y;
-      const pinClosed = landmarks[20].y > landmarks[18].y;
-
-      // Touch checks
-      const touchThInd = dist(landmarks[4], landmarks[8]) < 0.06;
-      const touchThMid = dist(landmarks[4], landmarks[12]) < 0.06;
-      const touchThRin = dist(landmarks[4], landmarks[16]) < 0.06;
-      const touchThPin = dist(landmarks[4], landmarks[20]) < 0.08;
-
-      // Together checks
-      const blade2 = dist(landmarks[8], landmarks[12]) < 0.06 && ind && mid && rinClosed && pinClosed;
-      const blade3 = dist(landmarks[8], landmarks[12]) < 0.06 && dist(landmarks[12], landmarks[16]) < 0.06 && ind && mid && rin && pinClosed;
-
-      const cluster = touchThInd && touchThMid && touchThRin && touchThPin && !ind && !mid && !rin && !pin;
-
-      // Classifications
-      if (cluster) return 5; // The Pinecone (All fingers touching thumb)
-
-      // Mudras (Thumb touching one finger, others extended)
-      if (touchThInd && !indClosed && mid && rin && pin) return 4; // Meditation (OK Sign)
-      if (touchThMid && ind && !midClosed && rin && pin) return 1; // Snap Focus
-      if (touchThRin && ind && mid && !rinClosed && pin) return 2; // Ring Mudra
-      if (touchThPin && ind && mid && rin && !pinClosed) return 3; // Pinky Mudra
-
-      // Blades
-      if (blade3 && !th) return 7; // Triple Blade
-      if (blade2 && !th) return 6; // Force Push (2-finger)
-
-      // Gun
-      if (th && ind && midClosed && rinClosed && pinClosed) return 8;
-
-      // Horns
-      if (!th && ind && midClosed && rinClosed && pin) return 9;
-
-      // Teacup
-      if (!th && indClosed && midClosed && rinClosed && pin) return 10;
-
-      return null;
+    function computeSpeed(buffer) {
+      if (buffer.length < 2) return 0;
+      let totalDist = 0;
+      for (let i = 1; i < buffer.length; i++) {
+        const dx = buffer[i].x - buffer[i - 1].x;
+        const dy = buffer[i].y - buffer[i - 1].y;
+        totalDist += Math.sqrt(dx * dx + dy * dy);
+      }
+      const totalTime = (buffer[buffer.length - 1].t - buffer[0].t) / 1000;
+      if (totalTime <= 0) return 0;
+      const speed = totalDist / totalTime;
+      return clamp(speed / 1.2, 0, 1);
     }
 
-    let activePose = null;
-    let poseHoldFrames = 0;
-    const POSE_HOLD_THRESHOLD = 20;
+    function computeSmoothness(buffer) {
+      if (buffer.length < 4) return 0.8;
+      const velocities = [];
+      for (let i = 1; i < buffer.length; i++) {
+        const dx = buffer[i].x - buffer[i - 1].x;
+        const dy = buffer[i].y - buffer[i - 1].y;
+        const dt = (buffer[i].t - buffer[i - 1].t) / 1000;
+        if (dt > 0.005) {
+          velocities.push({ vx: dx / dt, vy: dy / dt });
+        }
+      }
+      if (velocities.length < 2) return 0.8;
+      let jerkSum = 0;
+      for (let i = 1; i < velocities.length; i++) {
+        const dvx = velocities[i].vx - velocities[i - 1].vx;
+        const dvy = velocities[i].vy - velocities[i - 1].vy;
+        jerkSum += Math.sqrt(dvx * dvx + dvy * dvy);
+      }
+      const avgJerk = jerkSum / (velocities.length - 1);
+      return clamp(1 - (avgJerk / 4.0), 0, 1);
+    }
+
+    function computeFingerSpread(landmarks) {
+      const palmSize = dist(landmarks[0], landmarks[9]) || 0.1;
+      const d1 = dist(landmarks[4], landmarks[8]);
+      const d2 = dist(landmarks[8], landmarks[12]);
+      const d3 = dist(landmarks[12], landmarks[16]);
+      const d4 = dist(landmarks[16], landmarks[20]);
+      const totalSpread = (d1 + d2 + d3 + d4) / palmSize;
+      return clamp((totalSpread - 0.9) / 1.6, 0, 1);
+    }
+
+    function extractMovementFingerprint(landmarks) {
+      const wrist = landmarks[0];
+      const now = Date.now();
+
+      positionBuffer.push({ x: wrist.x, y: wrist.y, t: now });
+      if (positionBuffer.length > 30) positionBuffer.shift();
+
+      const speed = computeSpeed(positionBuffer);
+      const smoothness = computeSmoothness(positionBuffer);
+      const height = clamp(1 - wrist.y, 0, 1);
+      const spread = computeFingerSpread(landmarks);
+
+      return {
+        tempo: clamp(speed * 0.7 + spread * 0.3, 0.05, 1),
+        aggression: clamp(speed * (1 - smoothness * 0.5) + (1 - height) * 0.2, 0.05, 1),
+        darkness: clamp(1 - height, 0.05, 1),
+        chaos: clamp(1 - smoothness, 0.05, 1)
+      };
+    }
+
+    function cosineSimilarity(a, b) {
+      const keys = ['tempo', 'aggression', 'darkness', 'chaos'];
+      const dot = keys.reduce((sum, k) => sum + (a[k] || 0) * (b[k] || 0), 0);
+      const magA = Math.sqrt(keys.reduce((sum, k) => sum + (a[k] || 0) ** 2, 0));
+      const magB = Math.sqrt(keys.reduce((sum, k) => sum + (b[k] || 0) ** 2, 0));
+      if (magA === 0 || magB === 0) return 0;
+      return dot / (magA * magB);
+    }
+
+    function getBestMatch(fingerprint) {
+      let best = { track: trackProfiles[0], score: -1 };
+      for (const track of trackProfiles) {
+        const score = cosineSimilarity(fingerprint, track);
+        if (score > best.score) {
+          best = { track, score };
+        }
+      }
+      return best;
+    }
 
 
     // ============================================
@@ -737,136 +1081,57 @@
       const ty = Math.abs(wrist.y - prevWrist.y);
       const translation = Math.sqrt(tx * tx + ty * ty);
 
-      if (translation > 0.03) return 0; // too much hand movement
+      if (translation > 0.035) return 0; // moving around, not rotating
 
-      // Compute angle of wrist→middleMCP vector
-      const angle = Math.atan2(
-        middleMCP.y - wrist.y,
-        middleMCP.x - wrist.x
-      );
-      const prevAngle = Math.atan2(
-        prevMiddleMCP.y - prevWrist.y,
-        prevMiddleMCP.x - prevWrist.x
-      );
+      // Compute angle of wrist→middleMCP vector in mirrored screen space
+      const vx = -(middleMCP.x - wrist.x);
+      const vy = middleMCP.y - wrist.y;
+      const prevVx = -(prevMiddleMCP.x - prevWrist.x);
+      const prevVy = prevMiddleMCP.y - prevWrist.y;
+
+      const angle = Math.atan2(vy, vx);
+      const prevAngle = Math.atan2(prevVy, prevVx);
 
       let delta = angle - prevAngle;
       if (delta > Math.PI) delta -= 2 * Math.PI;
       if (delta < -Math.PI) delta += 2 * Math.PI;
 
-      if (Math.abs(delta) < 0.04) return 0; // not enough rotation
+      if (Math.abs(delta) < 0.04) return 0;
 
       return delta;
     }
 
     // --- Spider-Man Pose Detection ---
     let spiderManCounter = 0;
-    const SPIDER_MAN_THRESHOLD = 45;
+    const SPIDER_MAN_THRESHOLD = 40;
     let isSpiderManMode = false;
     let spiderManReleaseTimer = null;
 
-    function getVector(p1, p2) {
-      return { x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z };
-    }
+    function isSpiderManPose(landmarks) {
+      const wrist = landmarks[0];
+      const palmSize = dist(landmarks[0], landmarks[9]) || 0.1;
 
-    function dotProduct(v1, v2) {
-      return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    }
+      const thumbDistWrist = dist(landmarks[4], wrist);
+      const thumbDistPalm = dist(landmarks[4], landmarks[9]);
+      const thumbExtended = thumbDistWrist > palmSize * 0.85 || thumbDistPalm > palmSize * 0.75;
 
-    function magnitude(v) {
-      return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-    }
+      const indexDistWrist = dist(landmarks[8], wrist);
+      const indexJointWrist = dist(landmarks[6], wrist);
+      const indexExtended = indexDistWrist > indexJointWrist * 1.15 || landmarks[8].y < landmarks[6].y - 0.02;
 
-    function angleBetween(v1, v2) {
-      const dot = dotProduct(v1, v2);
-      const mag = magnitude(v1) * magnitude(v2);
-      if (mag === 0) return 0;
-      return Math.acos(clamp(dot / mag, -1, 1)) * (180 / Math.PI); // Returns degrees
-    }
+      const middleDistWrist = dist(landmarks[12], wrist);
+      const middleJointWrist = dist(landmarks[10], wrist);
+      const middleCurled = middleDistWrist < middleJointWrist * 1.1 && dist(landmarks[12], landmarks[9]) < palmSize * 0.9;
 
-    function isFingerExtended3D(mcp, pip, dip, tip) {
-      // Create vectors for the finger segments
-      const baseSegment = getVector(mcp, pip);
-      const midSegment = getVector(pip, dip);
-      const tipSegment = getVector(dip, tip);
+      const ringDistWrist = dist(landmarks[16], wrist);
+      const ringJointWrist = dist(landmarks[14], wrist);
+      const ringCurled = ringDistWrist < ringJointWrist * 1.1 && dist(landmarks[16], landmarks[9]) < palmSize * 0.9;
 
-      // If the finger is generally straight, the angles between these segments will be small (near 0)
-      // If curled, the angles will be large (closer to 90 or 180)
-      const angle1 = angleBetween(baseSegment, midSegment);
-      const angle2 = angleBetween(midSegment, tipSegment);
+      const pinkyDistWrist = dist(landmarks[20], wrist);
+      const pinkyJointWrist = dist(landmarks[18], wrist);
+      const pinkyExtended = pinkyDistWrist > pinkyJointWrist * 1.15 || landmarks[20].y < landmarks[18].y - 0.02;
 
-      // Also check the overall straightness from base to tip
-      const overallVector = getVector(mcp, tip);
-      const angleOverall = angleBetween(baseSegment, overallVector);
-
-      // Thresholds: if segments bend less than ~45 degrees rel to each other, it's extended
-      return (angle1 < 45 && angle2 < 45 && angleOverall < 40);
-    }
-
-    // No separate isSpiderManPose function needed anymore. It's unified in classifyPose.
-
-    function dist(a, b) {
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    function classifyPose(landmarks) {
-      // For the Thumb, the joints are 1 (CMC), 2 (MCP), 3 (IP), 4 (TIP)
-      // But thumb bends differently, so we use the vector from 2->3 and 3->4
-      const thumbBase = getVector(landmarks[2], landmarks[3]);
-      const thumbTip = getVector(landmarks[3], landmarks[4]);
-      const thumbAngle = angleBetween(thumbBase, thumbTip);
-
-      // Also check if thumb is sticking out away from the palm (cross product or distance from index base)
-      const palmCenter = landmarks[9];
-      const thumbDistToPalm = magnitude(getVector(landmarks[4], palmCenter));
-      const indexBaseDistToPalm = magnitude(getVector(landmarks[5], palmCenter));
-
-      // Thumb is open if it's relatively straight AND extended away from the center of the palm
-      const th = (thumbAngle < 40 && thumbDistToPalm > indexBaseDistToPalm * 1.5);
-
-      // Other fingers use the reliable 3D structural straightness check
-      const ind = isFingerExtended3D(landmarks[5], landmarks[6], landmarks[7], landmarks[8]);
-      const mid = isFingerExtended3D(landmarks[9], landmarks[10], landmarks[11], landmarks[12]);
-      const rin = isFingerExtended3D(landmarks[13], landmarks[14], landmarks[15], landmarks[16]);
-      const pin = isFingerExtended3D(landmarks[17], landmarks[18], landmarks[19], landmarks[20]);
-
-      // 5-character string representing exactly which fingers are open (1) or closed (0)
-      const state = "" + (th ? 1 : 0) + (ind ? 1 : 0) + (mid ? 1 : 0) + (rin ? 1 : 0) + (pin ? 1 : 0);
-
-      wCtx.fillStyle = 'white';
-      wCtx.font = '14px monospace';
-      wCtx.fillText("Pose: " + state, 10, 20);
-
-      // Unified check dictionary with the Thumb fully restored
-      const GESTURES = {
-        '11001': 'SPIDERMAN', // Thumb, Index, Pinky
-
-        '01001': 1, // The Horns (Index & Pinky)
-        '01100': 2, // The Two-Finger Blade / Peace (Index & Middle)
-        '01110': 3, // The Trident (3 fingers)
-        '01000': 4, // The Hook (Index only)
-        '11000': 5, // The Gun (Thumb + Index)
-        '10001': 6, // The Shaka (Thumb + Pinky)
-        '00001': 7, // The Teacup (Pinky only)
-        '00111': 8, // The Reversed Trident (Middle, Ring, Pinky)
-        '11111': 9, // The Wall (Open Palm)
-        '01111': 10 // Four Fingers
-      };
-
-      const match = GESTURES[state];
-
-      if (match === 'SPIDERMAN') {
-        wCtx.fillStyle = '#f00';
-        wCtx.fillText("Spider-Man", 10, 40);
-        return 'SPIDERMAN';
-      } else if (match) {
-        wCtx.fillStyle = '#0f0';
-        wCtx.fillText("Track " + match, 10, 40);
-        return match;
-      }
-
-      return null;
+      return thumbExtended && indexExtended && middleCurled && ringCurled && pinkyExtended;
     }
 
 
@@ -953,8 +1218,9 @@
         const brightness = 1.0 + intensity * 3.0; // 1.0 - 4.0
         const blur = 2 + intensity * 8; // 2px - 10px
 
+        el.style.transition = 'none';
         el.style.opacity = String(opacity);
-        el.style.transform = `scale(${scale})`;
+        el.style.transform = `translate(-50%, -50%) scale(${scale})`;
         el.style.filter = `blur(${blur}px) brightness(${brightness})`;
         el.classList.add('lit');
       });
@@ -965,8 +1231,9 @@
       WINDOWS.forEach(w => {
         const el = document.getElementById(w.id);
         if (!el) return;
+        el.style.transition = 'opacity 1.5s ease, filter 1.5s ease';
         el.style.opacity = '0';
-        el.style.transform = 'scale(1)';
+        el.style.transform = 'translate(-50%, -50%) scale(1)';
         el.style.filter = 'blur(5px) brightness(0.5)';
         el.classList.remove('lit');
       });
@@ -981,7 +1248,7 @@
       // All windows flare white-hot
       document.querySelectorAll('.castle-window.lit').forEach(w => {
         w.style.filter = 'blur(10px) brightness(3.0)';
-        w.style.transform = 'scale(1.5)';
+        w.style.transform = 'translate(-50%, -50%) scale(1.5)';
         w.style.boxShadow = '0 0 40px 20px rgba(255,255,255,0.5)';
       });
       setTimeout(() => {
@@ -1194,71 +1461,109 @@
 
     let handPresent = false;
     let handLostTime = 0;
-    const HAND_LOST_DEBOUNCE = 500; // ms
+    const HAND_LOST_DEBOUNCE = 600; // ms
     let systemState = 'IDLE'; // IDLE, READING, PLAYING, ROTATING, SPIDER_MAN
     let appStarted = false;
+    let lastMatchTime = 0;
+    const MATCH_INTERVAL = 2500; // 3 seconds between continuous track re-evaluations
+    const SWITCH_DELTA = 0.04;
 
     function showError(msg) {
       errorMessage.textContent = msg;
       errorScreen.classList.add('active');
     }
 
-    // Start screen click handler
-    startScreen.addEventListener('click', async () => {
+    // Start experience handler
+    async function startExperience() {
+      if (appStarted) return;
+      appStarted = true;
       startScreen.classList.add('hidden');
 
       try {
-        await initAudio();
+        await Tone.start();
+        console.log('AudioContext started:', Tone.context.state);
+        if (!masterVol) preloadAudio();
       } catch (e) {
         console.error('Audio init failed:', e);
       }
 
-      try {
-        await initMediaPipe();
-      } catch (e) {
-        console.error('MediaPipe init failed:', e);
-        showError('hand tracking failed to load — check connection');
-      }
+      initMediaPipe().catch(e => console.error('MediaPipe init failed:', e));
+    }
 
-      appStarted = true;
+    startScreen.addEventListener('click', startExperience);
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startExperience();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') startExperience();
     });
 
+    // Initialize HUD and preload audio immediately on load
+    renderTrackHUD();
+    preloadAudio();
+
     async function initMediaPipe() {
-      // Check for camera
+      // 1. Get camera stream directly on webcam preview
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+          }
+        });
         webcamPreview.srcObject = stream;
-        inputVideo.srcObject = stream;
+        await webcamPreview.play();
       } catch (e) {
-        showError('camera access required — refresh and allow');
+        console.error('Camera access failed:', e);
+        showError('Camera access required — please allow webcam access in your browser and refresh');
         throw e;
       }
 
-      const hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-      });
+      // 2. Initialize MediaPipe Hands
+      let hands;
+      try {
+        if (typeof Hands === 'undefined') {
+          throw new Error('MediaPipe Hands library is not loaded');
+        }
+        hands = new Hands({
+          locateFile: (file) => `mediapipe/${file}`
+        });
 
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.7,
-        minTrackingConfidence: 0.6,
-      });
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 0,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
 
-      hands.onResults(onHandResults);
+        hands.onResults(onHandResults);
+      } catch (e) {
+        console.error('MediaPipe setup failed:', e);
+        showError('Hand tracking models failed to load — check connection');
+        throw e;
+      }
 
-      const camera = new Camera(inputVideo, {
-        onFrame: async () => {
+      // 3. Reliable frame pump
+      let isProcessing = false;
+      async function sendFrame() {
+        if (webcamPreview.readyState >= 2 && !isProcessing) {
+          isProcessing = true;
           try {
-            await hands.send({ image: inputVideo });
-          } catch (e) { }
-        },
-        width: 640,
-        height: 480,
-      });
+            await hands.send({ image: webcamPreview });
+          } catch (e) {
+            console.error('Hands send error:', e);
+          } finally {
+            isProcessing = false;
+          }
+        }
+        requestAnimationFrame(sendFrame);
+      }
 
-      await camera.start();
-      console.log('MediaPipe Hands initialized.');
+      requestAnimationFrame(sendFrame);
+      console.log('MediaPipe Hands initialized and running.');
     }
 
 
@@ -1267,11 +1572,11 @@
     // ============================================
 
     function onHandResults(results) {
-      if (!appStarted || !audioReady) return;
+      if (!appStarted) return;
 
       const now = Date.now();
 
-      // Clear canvas
+      // Clear overlay canvas
       ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
       // Draw any active web lines
@@ -1282,17 +1587,27 @@
         if (handPresent) {
           if (handLostTime === 0) handLostTime = now;
 
-          // Debounce: only trigger idle after 500ms
+          // Debounce: only trigger idle after 600ms
           if (now - handLostTime > HAND_LOST_DEBOUNCE) {
             handPresent = false;
             systemState = 'IDLE';
             stopAllMusic();
             dimAllWindows();
-            activePose = null;
-            poseHoldFrames = 0;
+            positionBuffer.length = 0;
             prevLandmarks = null;
             spiderManCounter = 0;
             wCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height);
+            wCtx.save();
+            wCtx.translate(webcamCanvas.width, 0);
+            wCtx.scale(-1, 1);
+            wCtx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+            wCtx.fillRect(4, 4, webcamCanvas.width - 8, 20);
+            wCtx.fillStyle = '#94a3b8';
+            wCtx.font = '9px monospace';
+            wCtx.textAlign = 'center';
+            wCtx.textBaseline = 'middle';
+            wCtx.fillText('WAITING FOR HAND...', webcamCanvas.width / 2, 14);
+            wCtx.restore();
 
             if (isSpiderManMode) {
               isSpiderManMode = false;
@@ -1308,14 +1623,21 @@
       handLostTime = 0;
       const landmarks = results.multiHandLandmarks[0];
 
-      // --- Priority 2: Spider-Man Pose (Now unified via classifyPose check) ---
-      const poseMatch = classifyPose(landmarks);
+      // If audio buffers are still loading, show skeleton & loading text
+      if (!audioReady) {
+        drawHandSkeleton(landmarks, 'Loading audio tracks...');
+        prevLandmarks = landmarks;
+        return;
+      }
 
-      if (poseMatch === 'SPIDERMAN') {
+      // --- Priority 2: Spider-Man Pose Check ---
+      const spiderPose = isSpiderManPose(landmarks);
+
+      if (spiderPose) {
         spiderManCounter++;
 
-        // Draw progress ring
-        const handX = landmarks[9].x;
+        // Draw progress ring (mirrored hand X)
+        const handX = 1 - landmarks[9].x;
         const handY = landmarks[9].y;
         const progress = Math.min(spiderManCounter / SPIDER_MAN_THRESHOLD, 1);
         drawSpiderProgress(
@@ -1329,16 +1651,15 @@
             enterSpiderManMode(handX, handY);
             systemState = 'SPIDER_MAN';
           }
-          // Clear release timer while holding
           if (spiderManReleaseTimer) {
             clearTimeout(spiderManReleaseTimer);
             spiderManReleaseTimer = null;
           }
         }
 
+        drawHandSkeleton(landmarks, '🕷️ SPIDER-MAN');
         prevLandmarks = landmarks;
 
-        // Still update windows with frequency data while in spider mode
         if (isSpiderManMode) {
           const bands = getFrequencyBands();
           updateWindows(bands.bass, bands.mid, bands.high);
@@ -1346,26 +1667,23 @@
         }
         return;
       } else {
-        // Pose dropped
         if (spiderManCounter > 0) spiderManCounter = 0;
         if (isSpiderManMode) {
           exitSpiderManMode();
         }
       }
 
-      // --- Priority 3: Volume Rotation ---
+      // --- Priority 3: Volume Rotation Gesture ---
       const rotationDelta = detectWristRotation(landmarks);
       if (rotationDelta !== 0) {
-        // Adjust volume
-        masterVolume = clamp(masterVolume + rotationDelta * 0.5, 0, 1);
-
-        // Update Tone.js master volume
-        Tone.Destination.volume.value = volumeToDb(masterVolume);
+        masterVolume = clamp(masterVolume + rotationDelta * 0.45, 0, 1);
+        if (masterVol) {
+          masterVol.volume.value = volumeToDb(masterVolume);
+        }
 
         showVolumeArc = true;
         rotationInactiveFrames = 0;
 
-        // Clear fade timer
         if (volumeArcFadeTimer) clearTimeout(volumeArcFadeTimer);
         volumeArcFadeTimer = setTimeout(() => {
           showVolumeArc = false;
@@ -1382,45 +1700,44 @@
       // Draw volume arc if active
       if (showVolumeArc) {
         const wrist = landmarks[0];
+        const screenWristX = (1 - wrist.x) * overlayCanvas.width;
+        const screenWristY = wrist.y * overlayCanvas.height;
         drawVolumeArc(
-          wrist.x * overlayCanvas.width,
-          wrist.y * overlayCanvas.height,
+          screenWristX,
+          screenWristY,
           masterVolume
         );
       }
 
-      // Draw hand skeleton
-      drawHandSkeleton(landmarks);
+      // --- Priority 4: Movement Fingerprint & Track Matching ---
+      const fingerprint = extractMovementFingerprint(landmarks);
+      const best = getBestMatch(fingerprint);
 
-      // --- Priority 4: Specific Gestures → Track Matching ---
-
-      // If we made it here, poseMatch is either a track number (1-10) or null.
-      // (It is NOT 'SPIDERMAN' because that triggers a return inside Priority 2 above)
-      const poseId = (typeof poseMatch === 'number') ? poseMatch : null;
-
-      if (poseId !== null) {
-        if (poseId === activePose) {
-          poseHoldFrames++;
-          if (poseHoldFrames === POSE_HOLD_THRESHOLD) {
-            // Trigger track change
-            if (!isPlaying) {
-              startTrack(poseId);
-              startVisualLoop();
-              systemState = 'PLAYING';
-            } else if (poseId !== currentTrackId) {
-              crossfadeTo(poseId);
-            }
-          }
-        } else {
-          activePose = poseId;
-          poseHoldFrames = 1;
+      if (!isPlaying) {
+        // Start playing matched track once hand has a few frames of history
+        if (positionBuffer.length >= 3) {
+          startTrack(best.track.id);
+          startVisualLoop();
+          systemState = 'PLAYING';
+          lastMatchTime = now;
         }
-      } else {
-        poseHoldFrames = 0;
-        activePose = null;
+      } else if (!isSpiderManMode && (now - lastMatchTime > MATCH_INTERVAL)) {
+        // Continuous smooth re-evaluation every 3 seconds
+        const currentProfile = trackProfiles.find(t => t.id === currentTrackId);
+        const currentScore = currentProfile ? cosineSimilarity(fingerprint, currentProfile) : 0;
+
+        if (best.track.id !== currentTrackId && (best.score - currentScore > SWITCH_DELTA)) {
+          crossfadeTo(best.track.id);
+          lastMatchTime = now;
+        }
       }
 
-      // Visual updates are now handled by the independent visualLoop at 60fps
+      // Draw hand skeleton with current mood/track status on webcam canvas
+      const activeTrack = trackProfiles.find(t => t.id === currentTrackId);
+      const activeName = activeTrack ? activeTrack.name.split('—')[0].trim() : 'MATCHING';
+      const matchName = best.track ? best.track.name.split('—')[0].trim() : '';
+      const debugText = `${activeName} [Match: ${matchName}] | Vol ${Math.round(masterVolume * 100)}%`;
+      drawHandSkeleton(landmarks, debugText);
 
       // Store landmarks for next frame
       prevLandmarks = landmarks;
